@@ -2,174 +2,774 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Untuk Kamu ❤️</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Surprise For My Favorite Person ❤️</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <style>
         body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #050505;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        #canvas-container {
-            width: 100vw;
-            height: 100vh;
-        }
-
-        .text-overlay {
-            position: absolute;
-            bottom: 12%;
-            width: 100%;
-            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            background-color: #0b0314;
             color: #ffffff;
-            pointer-events: none;
-            z-index: 10;
+            overflow-x: hidden;
+            touch-action: manipulation;
         }
 
-        h1 {
-            font-size: 2rem;
-            margin: 0;
-            color: #ff4d6d;
-            text-shadow: 0 0 15px rgba(255, 77, 109, 0.6);
+        .font-romantic {
+            font-family: 'Dancing Script', cursive;
         }
 
-        p {
-            font-size: 1.1rem;
-            margin-top: 8px;
-            color: #ffb3c1;
-            text-shadow: 0 0 10px rgba(255, 179, 193, 0.4);
+        /* Glassmorphism Styling */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(255, 105, 180, 0.25);
+        }
+
+        /* Custom Heart Button Animation */
+        .btn-heart {
+            background: linear-gradient(135deg, #ff4b2b, #ff416c);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-heart:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(255, 65, 108, 0.5);
+        }
+
+        /* Quiz Shaking Animation on Wrong Choice */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        .shake-anim {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Floating Animation */
+        @keyframes floatCute {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+        }
+        .animate-cute-float {
+            animation: floatCute 4s ease-in-out infinite;
+        }
+
+        /* Canvas Fullscreen */
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff416c;
+            border-radius: 10px;
         }
     </style>
-    <!-- Import Library Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
-<body>
+<body class="min-h-screen relative overflow-hidden select-none">
 
-    <div id="canvas-container"></div>
-    
-    <div class="text-overlay">
-        <!-- Kamu bisa ubah teks di bawah ini sesuai keinginan -->
-        <h1>Happy Day, Sayang ❤️</h1>
-        <p>Jantung ini berdetak cuma buat kamu.</p>
+    <!-- OVERLAY 1: CUTE INTRO QUIZ -->
+    <div id="quiz-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-purple-950/90 to-pink-950/80">
+        <div class="glass-card max-w-md w-full rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden border border-pink-500/30">
+            <!-- Background Cute Floating Glows -->
+            <div class="absolute -top-12 -left-12 w-32 h-32 bg-pink-500/20 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-12 -right-12 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl"></div>
+
+            <div class="relative z-10">
+                <!-- Cute Mascot Header -->
+                <div class="w-20 h-20 mx-auto mb-4 bg-pink-500/20 rounded-full flex items-center justify-center text-4xl shadow-inner border border-pink-300/30 animate-cute-float">
+                    <span id="quiz-icon">🧸</span>
+                </div>
+
+                <div class="inline-block px-3 py-1 bg-pink-500/20 rounded-full text-pink-300 text-xs font-semibold tracking-wider uppercase mb-3">
+                    Pertanyaan <span id="quiz-step-num">1</span> dari 3 💌
+                </div>
+
+                <h2 id="quiz-question" class="text-xl sm:text-2xl font-bold text-white mb-6 leading-relaxed">
+                    Siapa sih orang paling gemoy dan ngangenin yang kamu sayang?
+                </h2>
+
+                <!-- Options Grid -->
+                <div id="quiz-options" class="space-y-3 mb-4">
+                    <!-- Dynamic buttons will be inserted here -->
+                </div>
+
+                <!-- Feedback Toast inside quiz -->
+                <p id="quiz-feedback" class="text-sm font-medium h-6 text-pink-300 opacity-0 transition-opacity duration-300"></p>
+            </div>
+        </div>
     </div>
 
+    <!-- OVERLAY 2: REVEAL GIFT BUTTON -->
+    <div id="gift-reveal-modal" class="fixed inset-0 z-40 hidden flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+        <div class="glass-card max-w-sm w-full rounded-3xl p-8 text-center animate-cute-float border border-pink-400/40">
+            <div class="text-6xl mb-4 animate-bounce">🎁</div>
+            <h2 class="text-3xl font-romantic font-bold text-pink-300 mb-2">Jawaban Kamu 100% Betul!</h2>
+            <p class="text-sm text-gray-200 mb-6">Aku punya kejutan spesial buat kamu. Klik tombol di bawah buat buka duniamu! ✨</p>
+            <button id="btn-start-3d" class="btn-heart w-full py-4 rounded-2xl text-white font-bold text-lg shadow-lg flex items-center justify-center space-x-2">
+                <span>Buka Hadiah Kamu</span>
+                <i class="fa-solid fa-sparkles"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 3D CANVAS CONTAINER -->
+    <div id="canvas-container"></div>
+
+    <!-- MAIN INTERACTIVE HUD OVERLAY (Visible during 3D) -->
+    <div id="hud-overlay" class="fixed inset-0 z-20 pointer-events-none hidden flex flex-col justify-between p-4 sm:p-6">
+        <!-- Top Bar -->
+        <div class="flex justify-between items-center pointer-events-auto">
+            <div class="glass-card px-4 py-2 rounded-2xl flex items-center space-x-3 border border-pink-500/20">
+                <span class="text-xl animate-pulse">💖</span>
+                <div>
+                    <h1 class="text-xs sm:text-sm font-bold text-pink-300">Our Romantic World</h1>
+                    <p class="text-[10px] text-gray-300">Geser untuk putar, klik foto untuk Zoom</p>
+                </div>
+            </div>
+
+            <div class="flex space-x-2">
+                <!-- Audio Toggle Button -->
+                <button id="btn-audio" class="glass-card w-11 h-11 rounded-2xl flex items-center justify-center text-pink-300 hover:text-white transition hover:bg-pink-500/30">
+                    <i class="fa-solid fa-music"></i>
+                </button>
+                <!-- Photo Customizer / Upload Trigger -->
+                <button id="btn-open-customizer" class="glass-card px-4 h-11 rounded-2xl flex items-center space-x-2 text-xs font-semibold text-pink-200 hover:text-white transition hover:bg-pink-500/30">
+                    <i class="fa-solid fa-camera-retro"></i>
+                    <span class="hidden sm:inline">Ubah Foto</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Center Prompt Tip -->
+        <div class="text-center pointer-events-none opacity-80 animate-pulse">
+            <span class="px-4 py-1.5 glass-card rounded-full text-xs text-pink-200 border border-pink-400/20">
+                ✨ Putar & Sentuh Foto Kenangan Kita ✨
+            </span>
+        </div>
+
+        <!-- Bottom Romantic Love Note Banner -->
+        <div class="pointer-events-auto max-w-xl mx-auto w-full">
+            <div class="glass-card p-4 rounded-2xl text-center border border-pink-500/30 relative">
+                <p id="main-quote" class="font-romantic text-lg sm:text-2xl text-pink-200">
+                    "Terima kasih udah ada di hidup aku dan selalu bikin hari-hariku makin bermakna. I Love You! ❤️"
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHOTO DETAIL ZOOM MODAL -->
+    <div id="photo-lightbox" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="glass-card max-w-sm w-full rounded-3xl p-5 relative text-center border border-pink-500/40">
+            <button id="btn-close-lightbox" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="p-3 bg-white/90 rounded-2xl shadow-inner mb-4 transform -rotate-1">
+                <img id="lightbox-img" src="" alt="Memory Photo" class="w-full h-64 object-cover rounded-xl shadow-md">
+                <p id="lightbox-date" class="text-xs font-semibold text-gray-500 mt-2 font-mono">OUR SPECIAL MEMORY</p>
+            </div>
+
+            <p id="lightbox-caption" class="font-romantic text-xl text-pink-200 mb-3">
+                Momen paling manis sama kamu!
+            </p>
+            <span class="text-xs text-pink-300/80">❤️ Tersimpan abadi di hatiku</span>
+        </div>
+    </div>
+
+    <!-- UPLOAD & CUSTOMIZER MODAL -->
+    <div id="customizer-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+        <div class="glass-card max-w-lg w-full rounded-3xl p-6 relative border border-pink-500/40 max-h-[90vh] overflow-y-auto">
+            <button id="btn-close-customizer" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 class="text-xl font-bold text-pink-300 mb-1 flex items-center space-x-2">
+                <i class="fa-solid fa-images"></i>
+                <span>Ganti Foto Kenangan (4 Foto)</span>
+            </h3>
+            <p class="text-xs text-gray-300 mb-6">Pilih foto kamu sendiri biar momen romantis ini makin nyata!</p>
+
+            <div id="upload-inputs-container" class="space-y-4">
+                <!-- 4 Upload File Inputs -->
+            </div>
+
+            <div class="mt-6 flex space-x-3">
+                <button id="btn-save-photos" class="btn-heart flex-1 py-3 rounded-xl font-bold text-sm">
+                    Simpan & Perbarui 3D
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BACKGROUND AUDIO -->
+    <audio id="romantic-audio" loop preload="auto">
+        <!-- Cute royalty free ambient melody -->
+        <source src="https://assets.mixkit.co/music/preview/mixkit-romantic-sunset-253.mp3" type="audio/mp3">
+    </audio>
+
     <script>
-        // 1. Setup Scene, Kamera, dan Renderer
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 4.5;
+        /* ===================================================
+           1. QUIZ DATA & LOGIC
+           =================================================== */
+        const quizData = [
+            {
+                icon: "🧸",
+                question: "Siapa sih orang paling gemoy dan kesayangan kamu hari ini?",
+                options: [
+                    { text: "Kamu dong pastinya! ❤️", correct: true },
+                    { text: "Tetangga sebelah 🤪", correct: false },
+                    { text: "Penjual Boba depan gang 🧋", correct: false }
+                ],
+                wrongMsg: "Ih kok gitu sih! Coba pilih yang bener deng 😜"
+            },
+            {
+                icon: "🥺",
+                question: "Kalo aku lagi ngambek/muka cemberut, obat paling manjur apa?",
+                options: [
+                    { text: "Ditinggal tidur aja 😴", correct: false },
+                    { text: "Dipeluk hangat + diajak jajan makanan enak 🍦", correct: true },
+                    { text: "Disuruh Push Rank Game 🎮", correct: false }
+                ],
+                wrongMsg: "Tetot! Salah banget, auto ngambek makin parah ini! 😂"
+            },
+            {
+                icon: "💌",
+                question: "Seberapa besar rasa sayang kamu sama aku?",
+                options: [
+                    { text: "Sedikit aja deh 🤏", correct: false },
+                    { text: "Seluas samudera dan ga ada habisnya! 🌌❤️", correct: true },
+                    { text: "Biasa aja tuh 😛", correct: false }
+                ],
+                wrongMsg: "Wkwk bohong banget! Pilih jawaban yang jujur dari hati yuk! 🥰"
+            }
+        ];
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        let currentQuizIndex = 0;
 
-        // 2. Pencahayaan
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
+        function loadQuizStep() {
+            const current = quizData[currentQuizIndex];
+            document.getElementById('quiz-icon').innerText = current.icon;
+            document.getElementById('quiz-step-num').innerText = currentQuizIndex + 1;
+            document.getElementById('quiz-question').innerText = current.question;
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
 
-        const pointLight = new THREE.PointLight(0xff4d6d, 2, 50);
-        pointLight.position.set(2, 3, 4);
-        scene.add(pointLight);
-
-        // 3. Membuat Bentuk Jantung 3D
-        const heartShape = new THREE.Shape();
-        const x = 0, y = 0;
-        heartShape.moveTo(x + 0.25, y + 0.25);
-        heartShape.bezierCurveTo(x + 0.25, y + 0.25, x + 0.2, y, x, y);
-        heartShape.bezierCurveTo(x - 0.3, y, x - 0.3, y + 0.35, x - 0.3, y + 0.35);
-        heartShape.bezierCurveTo(x - 0.3, y + 0.55, x - 0.1, y + 0.77, x + 0.25, y + 0.95);
-        heartShape.bezierCurveTo(x + 0.6, y + 0.77, x + 0.8, y + 0.55, x + 0.8, y + 0.35);
-        heartShape.bezierCurveTo(x + 0.8, y + 0.35, x + 0.8, y, x + 0.5, y);
-        heartShape.bezierCurveTo(x + 0.35, y, x + 0.25, y + 0.25, x + 0.25, y + 0.25);
-
-        const extrudeSettings = {
-            depth: 0.25,
-            bevelEnabled: true,
-            bevelSegments: 5,
-            steps: 2,
-            bevelSize: 0.1,
-            bevelThickness: 0.1
-        };
-
-        const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
-        
-        // Posisikan titik pusat ke tengah objek
-        geometry.center();
-
-        const material = new THREE.MeshPhongMaterial({
-            color: 0xff0043,
-            emissive: 0x330010,
-            shininess: 100,
-            specular: 0xffaaaa
-        });
-
-        const heart = new THREE.Mesh(geometry, material);
-        // Memutar objek supaya posisi jantung berdiri normal
-        heart.rotation.x = Math.PI;
-        scene.add(heart);
-
-        // 4. Efek Bintang/Partikel Berkelap-kelip di Background
-        const starsGeometry = new THREE.BufferGeometry();
-        const starsCount = 600;
-        const starPositions = new Float32Array(starsCount * 3);
-
-        for (let i = 0; i < starsCount * 3; i++) {
-            starPositions[i] = (Math.random() - 0.5) * 20;
+            current.options.forEach((opt) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full py-3.5 px-4 rounded-xl glass-card text-left text-sm font-medium hover:border-pink-400 hover:bg-pink-500/20 transition flex items-center justify-between group";
+                btn.innerHTML = `<span>${opt.text}</span> <i class="fa-solid fa-heart opacity-0 group-hover:opacity-100 text-pink-400 transition"></i>`;
+                
+                btn.onclick = () => handleQuizAnswer(opt.correct, btn, current.wrongMsg);
+                optionsContainer.appendChild(btn);
+            });
         }
 
-        starsGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-        const starsMaterial = new THREE.PointsMaterial({
-            color: 0xffb3c1,
-            size: 0.03,
-            transparent: true,
-            opacity: 0.8
-        });
+        function handleQuizAnswer(isCorrect, btnElement, wrongMsg) {
+            const feedback = document.getElementById('quiz-feedback');
+            const card = document.querySelector('#quiz-modal > div');
 
-        const starField = new THREE.Points(starsGeometry, starsMaterial);
-        scene.add(starField);
+            if (isCorrect) {
+                feedback.innerText = "Yayy bener! ✨";
+                feedback.className = "text-sm font-medium h-6 text-green-300 opacity-100 transition-opacity";
+                
+                setTimeout(() => {
+                    currentQuizIndex++;
+                    feedback.classList.add('opacity-0');
+                    if (currentQuizIndex < quizData.length) {
+                        loadQuizStep();
+                    } else {
+                        // Quiz Complete! Show Gift Reveal Modal
+                        document.getElementById('quiz-modal').classList.add('hidden');
+                        document.getElementById('gift-reveal-modal').classList.remove('hidden');
+                    }
+                }, 700);
+            } else {
+                feedback.innerText = wrongMsg;
+                feedback.className = "text-sm font-medium h-6 text-pink-300 opacity-100 transition-opacity";
+                
+                card.classList.remove('shake-anim');
+                void card.offsetWidth; // trigger reflow
+                card.classList.add('shake-anim');
+            }
+        }
 
-        // 5. Animasi (Rotasi, Detak Jantung, dan Respon Gerakan Mouse)
+        loadQuizStep();
+
+        /* ===================================================
+           2. DEFAULT PHOTOS DATA & LOCAL STORAGE HANDLE
+           =================================================== */
+        // Default placeholders with romantic fallback placeholders
+        let photoList = [
+            {
+                url: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=600&q=80",
+                caption: "Senyuman kamu yang selalu bikin hariku cerah ☀️",
+                date: "MEMORIES #1"
+            },
+            {
+                url: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=600&q=80",
+                caption: "Jalan-jalan bergandengan tangan sama kamu 💕",
+                date: "MEMORIES #2"
+            },
+            {
+                url: "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=600&q=80",
+                caption: "Tertawa bareng hal-hal kecil yang lucu ✨",
+                date: "MEMORIES #3"
+            },
+            {
+                url: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=600&q=80",
+                caption: "Selalu suka moments berdua sama kamu ❤️",
+                date: "MEMORIES #4"
+            }
+        ];
+
+        /* ===================================================
+           3. THREE.JS 3D ENGINE SCENE SETUP
+           =================================================== */
+        let scene, camera, renderer, mainGroup, heartMesh, starParticles, petalParticles;
+        let photoMeshes = [];
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
         let clock = new THREE.Clock();
-        let mouseX = 0, mouseY = 0;
+        let isSceneInitialized = false;
 
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX / window.innerWidth - 0.5) * 0.5;
-            mouseY = (event.clientY / window.innerHeight - 0.5) * 0.5;
-        });
+        function init3DScene() {
+            if (isSceneInitialized) return;
+            isSceneInitialized = true;
 
+            const container = document.getElementById('canvas-container');
+
+            // Scene
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x0b0314, 0.035);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 8.5);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Main Rotating World Group
+            mainGroup = new THREE.Group();
+            scene.add(mainGroup);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const pointLight = new THREE.PointLight(0xff416c, 2.5, 30);
+            pointLight.position.set(2, 4, 5);
+            scene.add(pointLight);
+
+            const purpleLight = new THREE.PointLight(0x9d4edd, 2, 30);
+            purpleLight.position.set(-4, -3, -2);
+            scene.add(purpleLight);
+
+            // Create 3D Central Pulsing Heart
+            create3DHeart();
+
+            // Create Orbiting Photo Polaroids
+            buildPhotoPolaroids();
+
+            // Create Floating Magic Particles (Stars & Petals)
+            createParticles();
+
+            // Setup Mouse/Touch Orbit & Raycaster Controls
+            setupInteractions();
+
+            // Window Resize Handler
+            window.addEventListener('resize', onWindowResize);
+
+            // Start Animation Loop
+            animate();
+        }
+
+        // --- Create 3D Extruded Heart ---
+        function create3DHeart() {
+            const heartShape = new THREE.Shape();
+            const x = 0, y = 0;
+            heartShape.moveTo(x + 0.25, y + 0.25);
+            heartShape.bezierCurveTo(x + 0.25, y + 0.25, x + 0.2, y, x, y);
+            heartShape.bezierCurveTo(x - 0.3, y, x - 0.3, y + 0.35, x - 0.3, y + 0.35);
+            heartShape.bezierCurveTo(x - 0.3, y + 0.55, x - 0.1, y + 0.77, x + 0.25, y + 0.95);
+            heartShape.bezierCurveTo(x + 0.6, y + 0.77, x + 0.8, y + 0.55, x + 0.8, y + 0.35);
+            heartShape.bezierCurveTo(x + 0.8, y + 0.35, x + 0.8, y, x + 0.5, y);
+            heartShape.bezierCurveTo(x + 0.35, y, x + 0.25, y + 0.25, x + 0.25, y + 0.25);
+
+            const extrudeSettings = {
+                depth: 0.35,
+                bevelEnabled: true,
+                bevelSegments: 6,
+                steps: 2,
+                bevelSize: 0.12,
+                bevelThickness: 0.12
+            };
+
+            const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+            geometry.center();
+
+            const material = new THREE.MeshPhongMaterial({
+                color: 0xff1744,
+                emissive: 0x5a0016,
+                shininess: 90,
+                specular: 0xffb3c1
+            });
+
+            heartMesh = new THREE.Mesh(geometry, material);
+            heartMesh.rotation.x = Math.PI; // Correct vertical alignment
+            heartMesh.scale.set(1.6, 1.6, 1.6);
+            mainGroup.add(heartMesh);
+        }
+
+        // --- Build Orbiting Photo Frame Canvas Textures & 3D Planes ---
+        function createPolaroidTexture(photoObj, callback) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 620;
+            const ctx = canvas.getContext('2d');
+
+            // White Polaroid Card Frame
+            ctx.fillStyle = '#f8f9fa';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 15;
+            ctx.fillRect(10, 10, 492, 600);
+
+            // Draw Photo Image onto Polaroid
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = () => {
+                ctx.shadowColor = 'transparent';
+                ctx.drawImage(img, 30, 30, 452, 452);
+
+                // Add Cute Top Tape Effect
+                ctx.fillStyle = 'rgba(255, 182, 193, 0.7)';
+                ctx.fillRect(180, 15, 152, 25);
+
+                // Add Caption Text
+                ctx.fillStyle = '#222222';
+                ctx.font = 'bold 22px sans-serif';
+                ctx.textAlign = 'center';
+                
+                // Truncate long text for polaroid bottom
+                let shortCaption = photoObj.caption;
+                if (shortCaption.length > 28) shortCaption = shortCaption.substring(0, 25) + '...';
+                ctx.fillText(shortCaption, 256, 545);
+
+                ctx.fillStyle = '#ff416c';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText(photoObj.date, 256, 575);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                callback(texture);
+            };
+            img.src = photoObj.url;
+        }
+
+        function buildPhotoPolaroids() {
+            // Remove previous photo meshes if re-building
+            photoMeshes.forEach(mesh => mainGroup.remove(mesh));
+            photoMeshes = [];
+
+            const radius = 3.6;
+            const count = photoList.length;
+
+            photoList.forEach((data, index) => {
+                createPolaroidTexture(data, (texture) => {
+                    const geometry = new THREE.PlaneGeometry(1.6, 1.95);
+                    const material = new THREE.MeshBasicMaterial({
+                        map: texture,
+                        side: THREE.DoubleSide,
+                        transparent: true
+                    });
+
+                    const mesh = new THREE.Mesh(geometry, material);
+
+                    // Position in circular orbit around center heart
+                    const angle = (index / count) * Math.PI * 2;
+                    mesh.position.x = Math.cos(angle) * radius;
+                    mesh.position.z = Math.sin(angle) * radius;
+                    mesh.position.y = (index % 2 === 0 ? 0.4 : -0.4);
+
+                    // Orient mesh facing outward/center
+                    mesh.lookAt(0, mesh.position.y, 0);
+                    mesh.rotation.y += Math.PI; // Face camera
+
+                    mesh.userData = { ...data, originalAngle: angle, index: index };
+                    photoMeshes.push(mesh);
+                    mainGroup.add(mesh);
+                });
+            });
+        }
+
+        // --- Romantic Floating Particles ---
+        function createParticles() {
+            // Stars Particles
+            const starsGeo = new THREE.BufferGeometry();
+            const starsCount = 400;
+            const starPos = new Float32Array(starsCount * 3);
+
+            for (let i = 0; i < starsCount * 3; i++) {
+                starPos[i] = (Math.random() - 0.5) * 25;
+            }
+            starsGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+
+            const starsMat = new THREE.PointsMaterial({
+                color: 0xffb3c1,
+                size: 0.05,
+                transparent: true,
+                opacity: 0.8
+            });
+            starParticles = new THREE.Points(starsGeo, starsMat);
+            scene.add(starParticles);
+
+            // Floating Rose Petals / Hearts Particles
+            const petalsGeo = new THREE.BufferGeometry();
+            const petalsCount = 120;
+            const petalPos = new Float32Array(petalsCount * 3);
+
+            for (let i = 0; i < petalsCount * 3; i += 3) {
+                petalPos[i] = (Math.random() - 0.5) * 15;
+                petalPos[i+1] = (Math.random() - 0.5) * 15;
+                petalPos[i+2] = (Math.random() - 0.5) * 15;
+            }
+            petalsGeo.setAttribute('position', new THREE.BufferAttribute(petalPos, 3));
+
+            const petalsMat = new THREE.PointsMaterial({
+                color: 0xff416c,
+                size: 0.12,
+                transparent: true,
+                opacity: 0.7
+            });
+            petalParticles = new THREE.Points(petalsGeo, petalsMat);
+            scene.add(petalParticles);
+        }
+
+        // --- Interaction Controls (Parallax & Lightbox Raycast) ---
+        let targetRotationX = 0, targetRotationY = 0;
+        let isPointerDown = false;
+        let previousPointerPosition = { x: 0, y: 0 };
+
+        function setupInteractions() {
+            const container = document.getElementById('canvas-container');
+
+            // Mouse / Touch Drag Rotation
+            const onPointerMove = (e) => {
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                if (isPointerDown) {
+                    const deltaX = clientX - previousPointerPosition.x;
+                    const deltaY = clientY - previousPointerPosition.y;
+
+                    targetRotationY += deltaX * 0.005;
+                    targetRotationX += deltaY * 0.005;
+                }
+
+                previousPointerPosition = { x: clientX, y: clientY };
+
+                // Update Raycaster Normalized Vector
+                mouse.x = (clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+            };
+
+            const onPointerDown = (e) => {
+                isPointerDown = true;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                previousPointerPosition = { x: clientX, y: clientY };
+            };
+
+            const onPointerUp = () => { isPointerDown = false; };
+
+            container.addEventListener('mousedown', onPointerDown);
+            container.addEventListener('mousemove', onPointerMove);
+            container.addEventListener('mouseup', onPointerUp);
+
+            container.addEventListener('touchstart', onPointerDown, { passive: true });
+            container.addEventListener('touchmove', onPointerMove, { passive: true });
+            container.addEventListener('touchend', onPointerUp);
+
+            // Photo Click Detection
+            container.addEventListener('click', handlePhotoClick);
+        }
+
+        function handlePhotoClick(e) {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(photoMeshes);
+
+            if (intersects.length > 0) {
+                const clickedPhoto = intersects[0].object.userData;
+                openLightbox(clickedPhoto);
+            }
+        }
+
+        // --- Lightbox Popup Handler ---
+        function openLightbox(photoData) {
+            document.getElementById('lightbox-img').src = photoData.url;
+            document.getElementById('lightbox-caption').innerText = photoData.caption;
+            document.getElementById('lightbox-date').innerText = photoData.date;
+            document.getElementById('photo-lightbox').classList.remove('hidden');
+        }
+
+        document.getElementById('btn-close-lightbox').onclick = () => {
+            document.getElementById('photo-lightbox').classList.add('hidden');
+        };
+
+        // --- Animation Loop ---
         function animate() {
             requestAnimationFrame(animate);
 
             const elapsedTime = clock.getElapsedTime();
 
-            // Efek Detak Jantung (Heartbeat) menggunakan fungsi Sinus
-            const scale = 1 + Math.sin(elapsedTime * 4) * 0.08;
-            heart.scale.set(scale, scale, scale);
+            // Smooth Rotating Main Group
+            mainGroup.rotation.y += 0.003;
+            mainGroup.rotation.y += (targetRotationY - mainGroup.rotation.y) * 0.05;
+            mainGroup.rotation.x += (targetRotationX - mainGroup.rotation.x) * 0.05;
 
-            // Rotasi perlahan objek jantung
-            heart.rotation.y += 0.01;
+            // Heartbeat Pulse Effect
+            if (heartMesh) {
+                const pulse = 1.5 + Math.sin(elapsedTime * 3.5) * 0.12;
+                heartMesh.scale.set(pulse, pulse, pulse);
+                heartMesh.rotation.y = Math.sin(elapsedTime * 0.8) * 0.2;
+            }
 
-            // Efek interaksi kamera mengikuti pergerakan kursor/mouse
-            camera.position.x += (mouseX - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY - camera.position.y) * 0.05;
-            camera.lookAt(scene.position);
-
-            // Rotasi perlahan latar bintang
-            starField.rotation.y -= 0.0005;
+            // Floating Petals Motion
+            if (petalParticles) {
+                const positions = petalParticles.geometry.attributes.position.array;
+                for (let i = 1; i < positions.length; i += 3) {
+                    positions[i] -= 0.01;
+                    if (positions[i] < -8) positions[i] = 8;
+                }
+                petalParticles.geometry.attributes.position.needsUpdate = true;
+            }
 
             renderer.render(scene, camera);
         }
 
-        animate();
-
-        // 6. Penyesuaian Ukuran Layar saat Layar di-Resize (Termasuk Tampilan HP)
-        window.addEventListener('resize', () => {
+        function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        }
+
+        /* ===================================================
+           4. CUSTOM PHOTO UPLOADER & UI CONTROLS
+           =================================================== */
+        const customizerModal = document.getElementById('customizer-modal');
+        const uploadInputsContainer = document.getElementById('upload-inputs-container');
+
+        // Render inputs for customizing 4 photos
+        function renderUploadInputs() {
+            uploadInputsContainer.innerHTML = '';
+            photoList.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = "p-3 rounded-2xl glass-card border border-pink-500/20 space-y-2";
+                div.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-pink-300">Foto #${index + 1}</span>
+                        <input type="file" id="file-input-${index}" accept="image/*" class="hidden">
+                        <button type="button" onclick="document.getElementById('file-input-${index}').click()" class="text-xs bg-pink-500/20 hover:bg-pink-500/40 text-pink-200 px-3 py-1 rounded-lg transition">
+                            <i class="fa-solid fa-upload mr-1"></i> Unggah Foto
+                        </button>
+                    </div>
+                    <input type="text" id="caption-input-${index}" value="${item.caption}" placeholder="Pesan singkat..." class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-pink-400">
+                `;
+                uploadInputsContainer.appendChild(div);
+
+                // Handle file reader
+                setTimeout(() => {
+                    document.getElementById(`file-input-${index}`).onchange = (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                photoList[index].url = event.target.result;
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    };
+                }, 0);
+            });
+        }
+
+        document.getElementById('btn-open-customizer').onclick = () => {
+            renderUploadInputs();
+            customizerModal.classList.remove('hidden');
+        };
+
+        document.getElementById('btn-close-customizer').onclick = () => {
+            customizerModal.classList.add('hidden');
+        };
+
+        document.getElementById('btn-save-photos').onclick = () => {
+            photoList.forEach((item, idx) => {
+                const capVal = document.getElementById(`caption-input-${idx}`).value;
+                if (capVal) photoList[idx].caption = capVal;
+            });
+
+            // Re-build 3D Polaroids with new pictures/captions
+            buildPhotoPolaroids();
+            customizerModal.classList.add('hidden');
+        };
+
+        // --- Audio Music Controls ---
+        const romanticAudio = document.getElementById('romantic-audio');
+        const btnAudio = document.getElementById('btn-audio');
+        let isPlaying = false;
+
+        btnAudio.onclick = () => {
+            if (isPlaying) {
+                romanticAudio.pause();
+                btnAudio.classList.remove('text-pink-400', 'bg-pink-500/30');
+                btnAudio.classList.add('text-gray-400');
+            } else {
+                romanticAudio.play();
+                btnAudio.classList.add('text-pink-400', 'bg-pink-500/30');
+            }
+            isPlaying = !isPlaying;
+        };
+
+        // --- Reveal Button: Transition from Intro Quiz to 3D Scene ---
+        document.getElementById('btn-start-3d').onclick = () => {
+            document.getElementById('gift-reveal-modal').classList.add('hidden');
+            document.getElementById('hud-overlay').classList.remove('hidden');
+
+            // Play music automatically if allowed
+            romanticAudio.play().then(() => {
+                isPlaying = true;
+                btnAudio.classList.add('text-pink-400', 'bg-pink-500/30');
+            }).catch(() => {});
+
+            // Initialize Three.js Engine
+            init3DScene();
+        };
     </script>
 </body>
 </html>
